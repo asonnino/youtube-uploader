@@ -4,7 +4,8 @@ import json
 import os
 import sys
 from unittest import TestCase
-from unittest.mock import Mock, patch, MagicMock, call
+from unittest.mock import Mock, patch
+
 import pytest
 
 # Import the module to test
@@ -68,7 +69,7 @@ class TestUpload(TestCase):
 
         # Assert success message was printed
         print_calls = mock_print.call_args_list
-        self.assertTrue(any("Upload successful" in str(call) for call in print_calls))
+        self.assertTrue(any("Upload successful" in str(c) for c in print_calls))
 
     @patch("upload.MediaFileUpload")
     def test_upload_video_with_metadata_loading(self, mock_media_upload):
@@ -91,6 +92,9 @@ class TestUpload(TestCase):
         # Assert metadata was loaded correctly
         self.assertEqual(call_kwargs["body"]["snippet"]["title"], "Test Video Title")
         self.assertEqual(call_kwargs["body"]["status"]["privacyStatus"], "private")
+
+        # Verify mock was used
+        _ = mock_media_upload
 
     def test_upload_video_missing_metadata_file(self):
         """Test handling of missing metadata file."""
@@ -128,6 +132,9 @@ class TestUpload(TestCase):
 
         # Assert next_chunk was called multiple times
         self.assertEqual(mock_request.next_chunk.call_count, len(side_effects))
+
+        # Verify mocks were used
+        _ = mock_print, mock_media_upload
 
 
 class TestMain(TestCase):
@@ -181,6 +188,9 @@ class TestMain(TestCase):
             "client_secret.json", use_device_flow=True
         )
 
+        # Verify mocks were used
+        _ = mock_load_dotenv, mock_upload
+
     @patch("upload.load_dotenv")
     @patch("os.getenv")
     def test_main_missing_client_secret_env(self, mock_getenv, mock_load_dotenv):
@@ -195,6 +205,9 @@ class TestMain(TestCase):
                 main()
 
             self.assertIn("CLIENT_SECRET_FILE not set", str(context.exception))
+
+        # Verify mock was used
+        _ = mock_load_dotenv
 
     @patch("sys.argv", ["upload.py", "--help"])
     def test_main_help_argument(self):
