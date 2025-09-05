@@ -46,12 +46,18 @@ def get_authenticated_service(
         else:
             # No valid credentials, need to authenticate
             if use_device_flow:
-                # Device flow: runs local server without opening browser
-                # Useful for headless servers without browser access
+                # Manual flow: no local server needed, works on remote machines
+                # User visits URL on any device and enters authorization code
                 flow = InstalledAppFlow.from_client_secrets_file(
                     client_secret_file, SCOPES
                 )
-                credentials = flow.run_local_server(port=0, open_browser=False)
+                auth_url, _ = flow.authorization_url(prompt="consent")
+                print("\n🔗 Please visit this URL on any device with internet access:")
+                print(f"   {auth_url}")
+                print("\n📋 After authorization, you'll get an authorization code.")
+                code = input("   Enter the authorization code here: ").strip()
+                flow.fetch_token(code=code)
+                credentials = flow.credentials
             else:
                 # Browser flow: opens local browser for authentication
                 # Standard flow for desktop environments

@@ -98,14 +98,17 @@ Privacy options: `"private"`, `"unlisted"`, `"public"`
 ### Common Errors
 
 **`youtubeSignupRequired`**: Your Google account needs a YouTube channel
+
 - Visit [YouTube.com](https://youtube.com) and create a channel
 - Try uploading again
 
 **`quotaExceeded`**: API quota limit reached
+
 - Wait and try again later
 - Consider requesting quota increase in Google Cloud Console
 
 **Authentication Issues**:
+
 - Ensure OAuth credentials have YouTube upload permissions
 - Check that client secret file is valid and accessible
 - For headless servers, use `--device-auth` flag
