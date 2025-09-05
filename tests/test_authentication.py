@@ -11,8 +11,7 @@ from unittest.mock import Mock, mock_open, patch
 import pytest
 
 # Import the module to test
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from upload import SCOPES, get_authenticated_service  # noqa: E402
+from youtube_uploader.main import SCOPES, get_authenticated_service
 
 
 class TestAuthentication(TestCase):
@@ -40,8 +39,8 @@ class TestAuthentication(TestCase):
         """Clean up test fixtures."""
         shutil.rmtree(self.temp_dir, ignore_errors=True)
 
-    @patch("upload.build")
-    @patch("upload.pickle.load")
+    @patch("youtube_uploader.main.build")
+    @patch("youtube_uploader.main.pickle.load")
     def test_load_valid_credentials_from_pickle(self, mock_pickle_load, mock_build):
         """Test loading valid credentials from pickle file."""
         # Create mock credentials
@@ -60,10 +59,10 @@ class TestAuthentication(TestCase):
             "youtube", "v3", credentials=mock_credentials
         )
 
-    @patch("upload.build")
-    @patch("upload.Request")
-    @patch("upload.pickle.load")
-    @patch("upload.pickle.dump")
+    @patch("youtube_uploader.main.build")
+    @patch("youtube_uploader.main.Request")
+    @patch("youtube_uploader.main.pickle.load")
+    @patch("youtube_uploader.main.pickle.dump")
     def test_refresh_expired_credentials(
         self, mock_pickle_dump, mock_pickle_load, mock_request, mock_build
     ):
@@ -88,9 +87,9 @@ class TestAuthentication(TestCase):
         # Verify mocks were called (even if not directly used)
         _ = mock_pickle_dump, mock_request
 
-    @patch("upload.build")
-    @patch("upload.InstalledAppFlow")
-    @patch("upload.pickle.dump")
+    @patch("youtube_uploader.main.build")
+    @patch("youtube_uploader.main.InstalledAppFlow")
+    @patch("youtube_uploader.main.pickle.dump")
     def test_browser_flow_authentication(
         self, mock_pickle_dump, mock_flow_class, mock_build
     ):
@@ -119,9 +118,9 @@ class TestAuthentication(TestCase):
         # Verify mock was called
         _ = mock_build
 
-    @patch("upload.build")
-    @patch("upload.InstalledAppFlow")
-    @patch("upload.pickle.dump")
+    @patch("youtube_uploader.main.build")
+    @patch("youtube_uploader.main.InstalledAppFlow")
+    @patch("youtube_uploader.main.pickle.dump")
     def test_device_flow_authentication(
         self, mock_pickle_dump, mock_flow_class, mock_build
     ):
@@ -152,9 +151,9 @@ class TestAuthentication(TestCase):
         # Verify mock was called
         _ = mock_build
 
-    @patch("upload.build")
-    @patch("upload.pickle.load")
-    @patch("upload.pickle.dump")
+    @patch("youtube_uploader.main.build")
+    @patch("youtube_uploader.main.pickle.load")
+    @patch("youtube_uploader.main.pickle.dump")
     def test_invalid_credentials_without_refresh_token(
         self, mock_pickle_dump, mock_pickle_load, mock_build
     ):
@@ -170,7 +169,7 @@ class TestAuthentication(TestCase):
         open(self.token_file, "wb").close()
 
         # Mock the flow to avoid actual OAuth
-        with patch("upload.InstalledAppFlow") as mock_flow_class:
+        with patch("youtube_uploader.main.InstalledAppFlow") as mock_flow_class:
             mock_flow = Mock()
             new_credentials = Mock()
             new_credentials.valid = True

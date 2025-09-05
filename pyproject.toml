@@ -1,3 +1,40 @@
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "youtube-uploader"
+version = "1.0.0"
+description = "Simple Python script to upload YouTube videos from the command line"
+authors = [{ name = "Alberto Sonnino", email = "alberto@sonnino.com" }]
+license = { text = "Apache-2.0" }
+readme = "README.md"
+requires-python = ">=3.9"
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+]
+dependencies = [
+    "google-api-python-client==2.154.0",
+    "google-auth-httplib2==0.2.0",
+    "google-auth-oauthlib==1.2.1",
+]
+
+[project.scripts]
+youtube-uploader = "youtube_uploader.main:main"
+
+[project.urls]
+"Homepage" = "https://github.com/asonnino/youtube-uploader"
+"Bug Reports" = "https://github.com/asonnino/youtube-uploader/issues"
+"Source" = "https://github.com/asonnino/youtube-uploader"
+
 [tool.black]
 line-length = 88
 target-version = ['py39', 'py310', 'py311', 'py312', 'py313']
@@ -34,11 +71,11 @@ addopts = "-v --tb=short --strict-markers"
 markers = [
     "unit: Unit tests",
     "integration: Integration tests",
-    "slow: Slow tests"
+    "slow: Slow tests",
 ]
 
 [tool.coverage.run]
-source = ["upload"]
+source = ["youtube_uploader"]
 omit = ["tests/*", "*/test_*.py"]
 
 [tool.coverage.report]
@@ -51,7 +88,7 @@ exclude_lines = [
     "raise NotImplementedError",
     "if 0:",
     "if False:",
-    "if TYPE_CHECKING:"
+    "if TYPE_CHECKING:",
 ]
 ignore_errors = true
 

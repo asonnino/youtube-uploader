@@ -7,9 +7,21 @@
 
 Simple Python script to upload YouTube videos from the command line.
 
-## Setup
+## Installation
 
-### 1. Install Dependencies
+### Option 1: pipx (Recommended)
+
+Install using [pipx](https://pypa.github.io/pipx/) for isolated dependency management:
+
+```bash
+# Install from local directory
+pipx install .
+
+# Or install directly from GitHub
+pipx install git+https://github.com/asonnino/youtube-uploader.git
+```
+
+### Option 2: Manual Setup
 
 ```bash
 # Create virtual environment
@@ -20,7 +32,9 @@ source .venv/bin/activate  # On Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-### 2. Configure YouTube API Credentials
+## Setup
+
+Configure YouTube API Credentials:
 
 1. Go to [Google Cloud Console](https://console.cloud.google.com)
 2. Create a new project or select an existing one
@@ -30,12 +44,24 @@ pip install -r requirements.txt
 
 ## Usage
 
+### With pipx installation
+
 ```bash
 # Basic upload
-python upload.py video.mp4 metadata.json --client-secret client_secret.json
+youtube-uploader video.mp4 metadata.json --client-secret client_secret.json
 
 # For headless servers (no browser available)
-python upload.py video.mp4 metadata.json --client-secret client_secret.json --device-auth
+youtube-uploader video.mp4 metadata.json --client-secret client_secret.json --device-auth
+```
+
+### With manual setup
+
+```bash
+# Basic upload
+python youtube_uploader/main.py video.mp4 metadata.json --client-secret client_secret.json
+
+# For headless servers (no browser available)
+python youtube_uploader/main.py video.mp4 metadata.json --client-secret client_secret.json --device-auth
 ```
 
 ### Metadata File Format
