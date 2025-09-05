@@ -10,6 +10,7 @@ import sys
 from google.auth.transport.requests import Request
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
+from googleapiclient.errors import ResumableUploadError
 from googleapiclient.http import MediaFileUpload
 
 # YouTube upload scope - required permission for uploading videos
@@ -45,12 +46,12 @@ def get_authenticated_service(
         else:
             # No valid credentials, need to authenticate
             if use_device_flow:
-                # Device flow: displays a code to enter on another device
+                # Device flow: runs local server without opening browser
                 # Useful for headless servers without browser access
-                with open(client_secret_file, "r") as f:
-                    client_config = json.load(f)
-                flow = InstalledAppFlow.from_client_config(client_config, SCOPES)
-                credentials = flow.run_console()  # Shows device code in terminal
+                flow = InstalledAppFlow.from_client_secrets_file(
+                    client_secret_file, SCOPES
+                )
+                credentials = flow.run_local_server(port=0, open_browser=False)
             else:
                 # Browser flow: opens local browser for authentication
                 # Standard flow for desktop environments
@@ -89,17 +90,39 @@ def upload_video(youtube, video_file, metadata_file):
     # Upload the video with progress tracking
     print(f"⏳ Uploading {video_file} ...")
     response = None
-    while response is None:
-        status, response = request.next_chunk()
-        if status:
-            # Display upload progress
-            percent = int(status.progress() * 100)
-            sys.stdout.write(f"\rProgress: {percent}%")
-            sys.stdout.flush()
+    try:
+        while response is None:
+            status, response = request.next_chunk()
+            if status:
+                # Display upload progress
+                percent = int(status.progress() * 100)
+                sys.stdout.write(f"\rProgress: {percent}%")
+                sys.stdout.flush()
 
-    # Upload complete - display success and video details
-    print("\n✅ Upload successful!")
-    print(json.dumps(response, indent=2))
+        # Upload complete - display success and video details
+        print("\n✅ Upload successful!")
+        print(json.dumps(response, indent=2))
+
+    except ResumableUploadError as error:
+        print(f"\n❌ Upload failed: {error}")
+
+        # Check for common YouTube signup error
+        if "youtubeSignupRequired" in str(error):
+            print("\n🔍 This error typically means:")
+            print("   • Your Google account doesn't have a YouTube channel")
+            print("   • Please visit https://youtube.com and create a channel")
+            print("   • Then try uploading again")
+        elif "quotaExceeded" in str(error):
+            print("\n🔍 This error means:")
+            print("   • YouTube API quota has been exceeded")
+            print("   • Please try again later or request quota increase")
+        else:
+            print("\n🔍 For troubleshooting, check:")
+            print("   • YouTube channel exists and is active")
+            print("   • OAuth credentials have YouTube upload permissions")
+            print("   • Video file is in a supported format")
+
+        sys.exit(1)
 
 
 def main():
