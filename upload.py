@@ -7,7 +7,6 @@ import os
 import pickle
 import sys
 
-from dotenv import load_dotenv
 from google.auth.transport.requests import Request
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
@@ -110,21 +109,24 @@ def main():
     parser.add_argument("video_file", help="Path to the video file")
     parser.add_argument("metadata_file", help="Path to JSON metadata file")
     parser.add_argument(
+        "--client-secret",
+        required=True,
+        help="Path to the OAuth2 client secret JSON file",
+    )
+    parser.add_argument(
         "--device-auth",
         action="store_true",
         help="Use OAuth device/console flow (for headless servers)",
     )
     args = parser.parse_args()
 
-    # Load environment variables from .env file
-    load_dotenv()
-    client_secret_file = os.getenv("CLIENT_SECRET_FILE")
-    if not client_secret_file:
-        raise RuntimeError("CLIENT_SECRET_FILE not set in .env")
+    # Check if client secret file exists
+    if not os.path.exists(args.client_secret):
+        raise FileNotFoundError(f"Client secret file not found: {args.client_secret}")
 
     # Authenticate and get YouTube service
     youtube = get_authenticated_service(
-        client_secret_file, use_device_flow=args.device_auth
+        args.client_secret, use_device_flow=args.device_auth
     )
 
     # Upload the video with provided metadata

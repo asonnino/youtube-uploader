@@ -142,24 +142,24 @@ class TestMain(TestCase):
 
     @patch("upload.upload_video")
     @patch("upload.get_authenticated_service")
-    @patch("upload.load_dotenv")
-    @patch("os.getenv")
-    def test_main_with_valid_arguments(
-        self, mock_getenv, mock_load_dotenv, mock_get_auth, mock_upload
-    ):
+    def test_main_with_valid_arguments(self, mock_get_auth, mock_upload):
         """Test main function with valid command line arguments."""
-        # Setup environment
-        mock_getenv.return_value = "client_secret.json"
         mock_youtube = Mock()
         mock_get_auth.return_value = mock_youtube
 
         # Mock command line arguments
-        test_args = ["upload.py", "video.mp4", "metadata.json"]
+        test_args = [
+            "upload.py",
+            "video.mp4",
+            "metadata.json",
+            "--client-secret",
+            "client_secret.json",
+        ]
         with patch("sys.argv", test_args):
-            main()
+            with patch("upload.os.path.exists", return_value=True):
+                main()
 
         # Assert functions were called
-        mock_load_dotenv.assert_called_once()
         mock_get_auth.assert_called_once_with(
             "client_secret.json", use_device_flow=False
         )
@@ -167,21 +167,23 @@ class TestMain(TestCase):
 
     @patch("upload.upload_video")
     @patch("upload.get_authenticated_service")
-    @patch("upload.load_dotenv")
-    @patch("os.getenv")
-    def test_main_with_device_auth(
-        self, mock_getenv, mock_load_dotenv, mock_get_auth, mock_upload
-    ):
+    def test_main_with_device_auth(self, mock_get_auth, mock_upload):
         """Test main function with --device-auth flag."""
-        # Setup environment
-        mock_getenv.return_value = "client_secret.json"
         mock_youtube = Mock()
         mock_get_auth.return_value = mock_youtube
 
         # Mock command line arguments with device auth
-        test_args = ["upload.py", "video.mp4", "metadata.json", "--device-auth"]
+        test_args = [
+            "upload.py",
+            "video.mp4",
+            "metadata.json",
+            "--client-secret",
+            "client_secret.json",
+            "--device-auth",
+        ]
         with patch("sys.argv", test_args):
-            main()
+            with patch("upload.os.path.exists", return_value=True):
+                main()
 
         # Assert device flow was used
         mock_get_auth.assert_called_once_with(
@@ -189,25 +191,24 @@ class TestMain(TestCase):
         )
 
         # Verify mocks were used
-        _ = mock_load_dotenv, mock_upload
+        _ = mock_upload
 
-    @patch("upload.load_dotenv")
-    @patch("os.getenv")
-    def test_main_missing_client_secret_env(self, mock_getenv, mock_load_dotenv):
-        """Test main function when CLIENT_SECRET_FILE is not set."""
-        # Setup environment without CLIENT_SECRET_FILE
-        mock_getenv.return_value = None
-
+    def test_main_missing_client_secret_file(self):
+        """Test main function when client secret file doesn't exist."""
         # Mock command line arguments
-        test_args = ["upload.py", "video.mp4", "metadata.json"]
+        test_args = [
+            "upload.py",
+            "video.mp4",
+            "metadata.json",
+            "--client-secret",
+            "nonexistent.json",
+        ]
         with patch("sys.argv", test_args):
-            with self.assertRaises(RuntimeError) as context:
-                main()
+            with patch("upload.os.path.exists", return_value=False):
+                with self.assertRaises(FileNotFoundError) as context:
+                    main()
 
-            self.assertIn("CLIENT_SECRET_FILE not set", str(context.exception))
-
-        # Verify mock was used
-        _ = mock_load_dotenv
+                self.assertIn("Client secret file not found", str(context.exception))
 
     @patch("sys.argv", ["upload.py", "--help"])
     def test_main_help_argument(self):
@@ -219,7 +220,21 @@ class TestMain(TestCase):
         # Help should exit with code 0
         self.assertEqual(context.exception.code, 0)
 
-    @patch("sys.argv", ["upload.py"])  # Missing required arguments
+    def test_main_missing_client_secret_argument(self):
+        """Test main function when --client-secret argument is missing."""
+        # Mock command line arguments without --client-secret
+        test_args = ["upload.py", "video.mp4", "metadata.json"]
+        with patch("sys.argv", test_args):
+            with self.assertRaises(SystemExit) as context:
+                with patch("sys.stderr"):
+                    main()
+
+            # Should exit with error code
+            self.assertNotEqual(context.exception.code, 0)
+
+    @patch(
+        "sys.argv", ["upload.py", "--client-secret", "client_secret.json"]
+    )  # Missing required positional arguments
     def test_main_missing_arguments(self):
         """Test main function with missing required arguments."""
         with self.assertRaises(SystemExit) as context:
