@@ -1,8 +1,8 @@
 """YouTube uploader package for command-line video uploads."""
 
 __version__ = "1.0.0"
-__author__ = "Your Name"
-__email__ = "your.email@example.com"
+__author__ = "Alberto Sonnino"
+__email__ = "alberto@sonnino.com"
 
 from .main import get_authenticated_service, upload_video
 
