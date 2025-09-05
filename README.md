@@ -34,13 +34,22 @@ pip install -r requirements.txt
 
 ## Setup
 
-Configure YouTube API Credentials:
+### 1. Configure YouTube API Credentials
 
 1. Go to [Google Cloud Console](https://console.cloud.google.com)
 2. Create a new project or select an existing one
 3. Enable YouTube Data API v3
 4. Create OAuth 2.0 credentials (Desktop application type)
 5. Download the client secret JSON file
+
+### 2. YouTube Channel Requirement
+
+**Important:** Your Google account must have a YouTube channel to upload videos. If you get a `youtubeSignupRequired` error:
+
+1. Visit [YouTube.com](https://youtube.com)
+2. Sign in with your Google account
+3. Create a YouTube channel if you don't have one
+4. Try uploading again
 
 ## Usage
 
@@ -50,7 +59,7 @@ Configure YouTube API Credentials:
 # Basic upload
 youtube-uploader --video-file video.mp4 --metadata-file metadata.json --client-secret client_secret.json
 
-# For headless servers (no browser available)
+# For headless servers (displays URL to visit manually)
 youtube-uploader --video-file video.mp4 --metadata-file metadata.json --client-secret client_secret.json --device-auth
 ```
 
@@ -60,7 +69,7 @@ youtube-uploader --video-file video.mp4 --metadata-file metadata.json --client-s
 # Basic upload
 python youtube_uploader/main.py --video-file video.mp4 --metadata-file metadata.json --client-secret client_secret.json
 
-# For headless servers (no browser available)
+# For headless servers (displays URL to visit manually)
 python youtube_uploader/main.py --video-file video.mp4 --metadata-file metadata.json --client-secret client_secret.json --device-auth
 ```
 
@@ -83,6 +92,23 @@ See `tests/fixtures/test_metadata.json` for an example. Create a JSON file with:
 ```
 
 Privacy options: `"private"`, `"unlisted"`, `"public"`
+
+## Troubleshooting
+
+### Common Errors
+
+**`youtubeSignupRequired`**: Your Google account needs a YouTube channel
+- Visit [YouTube.com](https://youtube.com) and create a channel
+- Try uploading again
+
+**`quotaExceeded`**: API quota limit reached
+- Wait and try again later
+- Consider requesting quota increase in Google Cloud Console
+
+**Authentication Issues**:
+- Ensure OAuth credentials have YouTube upload permissions
+- Check that client secret file is valid and accessible
+- For headless servers, use `--device-auth` flag
 
 ## Testing
 

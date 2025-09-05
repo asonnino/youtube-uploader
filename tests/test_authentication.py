@@ -129,12 +129,11 @@ class TestAuthentication(TestCase):
         mock_flow = Mock()
         mock_credentials = Mock()
         mock_credentials.valid = True
-        mock_flow.run_console.return_value = mock_credentials
-        mock_flow_class.from_client_config.return_value = mock_flow
+        mock_flow.run_local_server.return_value = mock_credentials
+        mock_flow_class.from_client_secrets_file.return_value = mock_flow
 
-        # Mock reading the client config file
-        with patch("builtins.open", mock_open(read_data='{"installed": {}}')):
-            # Call the function with device flow enabled
+        # Call the function with device flow enabled
+        with patch("builtins.print"):
             get_authenticated_service(
                 self.client_secret_file,
                 use_device_flow=True,
@@ -142,8 +141,10 @@ class TestAuthentication(TestCase):
             )
 
         # Assert device flow was used
-        mock_flow_class.from_client_config.assert_called_once()
-        mock_flow.run_console.assert_called_once()
+        mock_flow_class.from_client_secrets_file.assert_called_once_with(
+            self.client_secret_file, SCOPES
+        )
+        mock_flow.run_local_server.assert_called_once_with(port=0, open_browser=False)
 
         # Assert credentials were saved
         mock_pickle_dump.assert_called_once()

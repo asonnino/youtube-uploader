@@ -7,6 +7,7 @@ from unittest import TestCase
 from unittest.mock import Mock, patch
 
 import pytest
+from googleapiclient.errors import ResumableUploadError
 
 # Import the module to test
 from youtube_uploader.main import main, upload_video
@@ -134,6 +135,43 @@ class TestUpload(TestCase):
 
         # Verify mocks were used
         _ = mock_print, mock_media_upload
+
+    @patch("youtube_uploader.main.MediaFileUpload")
+    @patch("builtins.print")
+    @patch("sys.exit")
+    def test_upload_video_youtube_signup_required(
+        self, mock_exit, mock_print, mock_media_upload
+    ):
+        """Test handling of youtubeSignupRequired error."""
+        # Create mock YouTube service
+        mock_youtube = Mock()
+        mock_request = Mock()
+        mock_youtube.videos().insert.return_value = mock_request
+
+        # Mock ResumableUploadError with youtubeSignupRequired
+        error_content = (
+            b"[{"
+            b'"message": "Unauthorized", '
+            b'"domain": "youtube.header", '
+            b'"reason": "youtubeSignupRequired"'
+            b"}]"
+        )
+        upload_error = ResumableUploadError(Mock(status=401), error_content)
+        mock_request.next_chunk.side_effect = upload_error
+
+        # Call upload_video
+        upload_video(mock_youtube, self.test_video_file, self.test_metadata_file)
+
+        # Assert error handling was called
+        mock_exit.assert_called_once_with(1)
+
+        # Check that appropriate error messages were printed
+        print_calls = [str(call) for call in mock_print.call_args_list]
+        self.assertTrue(any("Upload failed" in call for call in print_calls))
+        self.assertTrue(any("YouTube channel" in call for call in print_calls))
+
+        # Verify mock was used
+        _ = mock_media_upload
 
 
 class TestMain(TestCase):
