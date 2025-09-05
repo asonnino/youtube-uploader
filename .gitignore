@@ -144,6 +144,9 @@ ENV/
 env.bak/
 venv.bak/
 
+# Project-specific credentials and tokens
+*.pickle
+
 # Spyder project settings
 .spyderproject
 .spyproject

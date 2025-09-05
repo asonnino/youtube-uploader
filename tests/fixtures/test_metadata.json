@@ -1,0 +1,11 @@
+{
+  "snippet": {
+    "title": "Test Video Title",
+    "description": "This is a test video description",
+    "tags": ["test", "youtube", "api"],
+    "categoryId": "22"
+  },
+  "status": {
+    "privacyStatus": "private"
+  }
+}
