@@ -148,8 +148,10 @@ class TestMain(TestCase):
 
         # Mock command line arguments
         test_args = [
-            "upload.py",
+            "youtube-uploader",
+            "--video-file",
             "video.mp4",
+            "--metadata-file",
             "metadata.json",
             "--client-secret",
             "client_secret.json",
@@ -173,8 +175,10 @@ class TestMain(TestCase):
 
         # Mock command line arguments with device auth
         test_args = [
-            "upload.py",
+            "youtube-uploader",
+            "--video-file",
             "video.mp4",
+            "--metadata-file",
             "metadata.json",
             "--client-secret",
             "client_secret.json",
@@ -196,8 +200,10 @@ class TestMain(TestCase):
         """Test main function when client secret file doesn't exist."""
         # Mock command line arguments
         test_args = [
-            "upload.py",
+            "youtube-uploader",
+            "--video-file",
             "video.mp4",
+            "--metadata-file",
             "metadata.json",
             "--client-secret",
             "nonexistent.json",
@@ -209,7 +215,7 @@ class TestMain(TestCase):
 
                 self.assertIn("Client secret file not found", str(context.exception))
 
-    @patch("sys.argv", ["upload.py", "--help"])
+    @patch("sys.argv", ["youtube-uploader", "--help"])
     def test_main_help_argument(self):
         """Test that help argument works."""
         with self.assertRaises(SystemExit) as context:
@@ -222,7 +228,13 @@ class TestMain(TestCase):
     def test_main_missing_client_secret_argument(self):
         """Test main function when --client-secret argument is missing."""
         # Mock command line arguments without --client-secret
-        test_args = ["upload.py", "video.mp4", "metadata.json"]
+        test_args = [
+            "youtube-uploader",
+            "--video-file",
+            "video.mp4",
+            "--metadata-file",
+            "metadata.json",
+        ]
         with patch("sys.argv", test_args):
             with self.assertRaises(SystemExit) as context:
                 with patch("sys.stderr"):
@@ -232,8 +244,8 @@ class TestMain(TestCase):
             self.assertNotEqual(context.exception.code, 0)
 
     @patch(
-        "sys.argv", ["upload.py", "--client-secret", "client_secret.json"]
-    )  # Missing required positional arguments
+        "sys.argv", ["youtube-uploader", "--client-secret", "client_secret.json"]
+    )  # Missing required arguments
     def test_main_missing_arguments(self):
         """Test main function with missing required arguments."""
         with self.assertRaises(SystemExit) as context:

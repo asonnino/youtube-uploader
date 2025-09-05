@@ -48,20 +48,20 @@ Configure YouTube API Credentials:
 
 ```bash
 # Basic upload
-youtube-uploader video.mp4 metadata.json --client-secret client_secret.json
+youtube-uploader --video-file video.mp4 --metadata-file metadata.json --client-secret client_secret.json
 
 # For headless servers (no browser available)
-youtube-uploader video.mp4 metadata.json --client-secret client_secret.json --device-auth
+youtube-uploader --video-file video.mp4 --metadata-file metadata.json --client-secret client_secret.json --device-auth
 ```
 
 ### With manual setup
 
 ```bash
 # Basic upload
-python youtube_uploader/main.py video.mp4 metadata.json --client-secret client_secret.json
+python youtube_uploader/main.py --video-file video.mp4 --metadata-file metadata.json --client-secret client_secret.json
 
 # For headless servers (no browser available)
-python youtube_uploader/main.py video.mp4 metadata.json --client-secret client_secret.json --device-auth
+python youtube_uploader/main.py --video-file video.mp4 --metadata-file metadata.json --client-secret client_secret.json --device-auth
 ```
 
 ### Metadata File Format
