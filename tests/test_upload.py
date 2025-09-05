@@ -9,8 +9,7 @@ from unittest.mock import Mock, patch
 import pytest
 
 # Import the module to test
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from upload import main, upload_video  # noqa: E402
+from youtube_uploader.main import main, upload_video
 
 
 class TestUpload(TestCase):
@@ -27,7 +26,7 @@ class TestUpload(TestCase):
         with open(self.test_metadata_file, "r") as f:
             self.test_metadata = json.load(f)
 
-    @patch("upload.MediaFileUpload")
+    @patch("youtube_uploader.main.MediaFileUpload")
     @patch("builtins.print")
     @patch("sys.stdout")
     def test_upload_video_success(self, mock_stdout, mock_print, mock_media_upload):
@@ -71,7 +70,7 @@ class TestUpload(TestCase):
         print_calls = mock_print.call_args_list
         self.assertTrue(any("Upload successful" in str(c) for c in print_calls))
 
-    @patch("upload.MediaFileUpload")
+    @patch("youtube_uploader.main.MediaFileUpload")
     def test_upload_video_with_metadata_loading(self, mock_media_upload):
         """Test that metadata is correctly loaded from file."""
         # Create mock YouTube service
@@ -104,7 +103,7 @@ class TestUpload(TestCase):
         with self.assertRaises(FileNotFoundError):
             upload_video(mock_youtube, self.test_video_file, "nonexistent.json")
 
-    @patch("upload.MediaFileUpload")
+    @patch("youtube_uploader.main.MediaFileUpload")
     @patch("builtins.print")
     def test_upload_progress_tracking(self, mock_print, mock_media_upload):
         """Test that upload progress is tracked correctly."""
@@ -140,8 +139,8 @@ class TestUpload(TestCase):
 class TestMain(TestCase):
     """Test cases for main function and CLI."""
 
-    @patch("upload.upload_video")
-    @patch("upload.get_authenticated_service")
+    @patch("youtube_uploader.main.upload_video")
+    @patch("youtube_uploader.main.get_authenticated_service")
     def test_main_with_valid_arguments(self, mock_get_auth, mock_upload):
         """Test main function with valid command line arguments."""
         mock_youtube = Mock()
@@ -156,7 +155,7 @@ class TestMain(TestCase):
             "client_secret.json",
         ]
         with patch("sys.argv", test_args):
-            with patch("upload.os.path.exists", return_value=True):
+            with patch("youtube_uploader.main.os.path.exists", return_value=True):
                 main()
 
         # Assert functions were called
@@ -165,8 +164,8 @@ class TestMain(TestCase):
         )
         mock_upload.assert_called_once_with(mock_youtube, "video.mp4", "metadata.json")
 
-    @patch("upload.upload_video")
-    @patch("upload.get_authenticated_service")
+    @patch("youtube_uploader.main.upload_video")
+    @patch("youtube_uploader.main.get_authenticated_service")
     def test_main_with_device_auth(self, mock_get_auth, mock_upload):
         """Test main function with --device-auth flag."""
         mock_youtube = Mock()
@@ -182,7 +181,7 @@ class TestMain(TestCase):
             "--device-auth",
         ]
         with patch("sys.argv", test_args):
-            with patch("upload.os.path.exists", return_value=True):
+            with patch("youtube_uploader.main.os.path.exists", return_value=True):
                 main()
 
         # Assert device flow was used
@@ -204,7 +203,7 @@ class TestMain(TestCase):
             "nonexistent.json",
         ]
         with patch("sys.argv", test_args):
-            with patch("upload.os.path.exists", return_value=False):
+            with patch("youtube_uploader.main.os.path.exists", return_value=False):
                 with self.assertRaises(FileNotFoundError) as context:
                     main()
 
