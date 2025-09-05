@@ -28,24 +28,14 @@ pip install -r requirements.txt
 4. Create OAuth 2.0 credentials (Desktop application type)
 5. Download the client secret JSON file
 
-### 3. Set Environment Variables
-
-```bash
-# Copy the example environment file
-cp .env.example .env
-
-# Edit .env and set the path to your client secret JSON file
-CLIENT_SECRET_FILE=path/to/your/client_secret.json
-```
-
 ## Usage
 
 ```bash
 # Basic upload
-python upload.py video.mp4 metadata.json
+python upload.py video.mp4 metadata.json --client-secret client_secret.json
 
 # For headless servers (no browser available)
-python upload.py video.mp4 metadata.json --device-auth
+python upload.py video.mp4 metadata.json --client-secret client_secret.json --device-auth
 ```
 
 ### Metadata File Format
