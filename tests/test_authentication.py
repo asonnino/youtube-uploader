@@ -6,13 +6,13 @@ import shutil
 import sys
 import tempfile
 from unittest import TestCase
-from unittest.mock import Mock, patch, mock_open
+from unittest.mock import Mock, mock_open, patch
 
 import pytest
 
 # Import the module to test
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from upload import get_authenticated_service, SCOPES
+from upload import SCOPES, get_authenticated_service  # noqa: E402
 
 
 class TestAuthentication(TestCase):
@@ -53,9 +53,7 @@ class TestAuthentication(TestCase):
         open(self.token_file, "wb").close()
 
         # Call the function
-        get_authenticated_service(
-            self.client_secret_file, token_file=self.token_file
-        )
+        get_authenticated_service(self.client_secret_file, token_file=self.token_file)
 
         # Assert build was called with the credentials
         mock_build.assert_called_once_with(
@@ -81,14 +79,12 @@ class TestAuthentication(TestCase):
         open(self.token_file, "wb").close()
 
         # Call the function
-        get_authenticated_service(
-            self.client_secret_file, token_file=self.token_file
-        )
+        get_authenticated_service(self.client_secret_file, token_file=self.token_file)
 
         # Assert refresh was called
         mock_credentials.refresh.assert_called_once()
         mock_build.assert_called_once()
-        
+
         # Verify mocks were called (even if not directly used)
         _ = mock_pickle_dump, mock_request
 
@@ -119,7 +115,7 @@ class TestAuthentication(TestCase):
 
         # Assert credentials were saved
         mock_pickle_dump.assert_called_once()
-        
+
         # Verify mock was called
         _ = mock_build
 
@@ -152,7 +148,7 @@ class TestAuthentication(TestCase):
 
         # Assert credentials were saved
         mock_pickle_dump.assert_called_once()
-        
+
         # Verify mock was called
         _ = mock_build
 
@@ -189,7 +185,7 @@ class TestAuthentication(TestCase):
             # Assert new authentication was triggered
             mock_flow_class.from_client_secrets_file.assert_called_once()
             mock_flow.run_local_server.assert_called_once()
-            
+
         # Verify mocks were called
         _ = mock_pickle_dump, mock_build
 

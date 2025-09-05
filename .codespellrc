@@ -1,0 +1,3 @@
+[codespell]
+skip = .git,*.pyc,*.pyo,__pycache__,.venv,venv,*.egg-info,htmlcov,.pytest_cache,.mypy_cache,*.pickle,.coverage
+ignore-words-list = assertIn,ans,inout

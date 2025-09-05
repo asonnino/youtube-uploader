@@ -1,1 +1,1 @@
-# Tests package for YouTube uploader
+"""Tests package for YouTube uploader."""

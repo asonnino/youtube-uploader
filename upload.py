@@ -8,11 +8,10 @@ import pickle
 import sys
 
 from dotenv import load_dotenv
-from googleapiclient.discovery import build
-from googleapiclient.http import MediaFileUpload
 from google.auth.transport.requests import Request
 from google_auth_oauthlib.flow import InstalledAppFlow
-from google_auth_oauthlib.helpers import session_from_client_config
+from googleapiclient.discovery import build
+from googleapiclient.http import MediaFileUpload
 
 # YouTube upload scope - required permission for uploading videos
 SCOPES = ["https://www.googleapis.com/auth/youtube.upload"]
@@ -22,12 +21,12 @@ def get_authenticated_service(
     client_secret_file, use_device_flow=False, token_file="token.pickle"
 ):
     """Authenticate and return YouTube service object.
-    
+
     Args:
         client_secret_file: Path to OAuth2 client secret JSON file
         use_device_flow: If True, use device flow for headless authentication
         token_file: Path to store/load cached credentials
-    
+
     Returns:
         Authenticated YouTube service object
     """
@@ -35,7 +34,9 @@ def get_authenticated_service(
     # Load existing credentials from file if available
     if os.path.exists(token_file):
         with open(token_file, "rb") as f:
-            credentials = pickle.load(f)
+            credentials = pickle.load(
+                f
+            )  # nosec B301 - pickle is safe here, we control the file
 
     # Check if credentials need to be obtained or refreshed
     if not credentials or not credentials.valid:
@@ -69,7 +70,7 @@ def get_authenticated_service(
 
 def upload_video(youtube, video_file, metadata_file):
     """Upload a video to YouTube with specified metadata.
-    
+
     Args:
         youtube: Authenticated YouTube service object
         video_file: Path to video file to upload
@@ -96,14 +97,14 @@ def upload_video(youtube, video_file, metadata_file):
             percent = int(status.progress() * 100)
             sys.stdout.write(f"\rProgress: {percent}%")
             sys.stdout.flush()
-    
+
     # Upload complete - display success and video details
     print("\n✅ Upload successful!")
     print(json.dumps(response, indent=2))
 
 
 def main():
-    """Main function to handle command line arguments and orchestrate upload."""
+    """Handle command line arguments and orchestrate upload."""
     # Set up command line argument parser
     parser = argparse.ArgumentParser(description="Upload a video to YouTube via CLI.")
     parser.add_argument("video_file", help="Path to the video file")
@@ -125,7 +126,7 @@ def main():
     youtube = get_authenticated_service(
         client_secret_file, use_device_flow=args.device_auth
     )
-    
+
     # Upload the video with provided metadata
     upload_video(youtube, args.video_file, args.metadata_file)
 
