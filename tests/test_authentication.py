@@ -102,9 +102,7 @@ class TestAuthentication(TestCase):
         mock_flow_class.from_client_secrets_file.return_value = mock_flow
 
         # Call the function with no existing token file
-        get_authenticated_service(
-            self.client_secret_file, use_device_flow=False, token_file=self.token_file
-        )
+        get_authenticated_service(self.client_secret_file, token_file=self.token_file)
 
         # Assert browser flow was used
         mock_flow_class.from_client_secrets_file.assert_called_once_with(
@@ -121,36 +119,31 @@ class TestAuthentication(TestCase):
     @patch("youtube_uploader.main.build")
     @patch("youtube_uploader.main.InstalledAppFlow")
     @patch("youtube_uploader.main.pickle.dump")
-    def test_device_flow_authentication(
+    def test_headless_server_error_handling(
         self, mock_pickle_dump, mock_flow_class, mock_build
     ):
-        """Test device/console OAuth flow."""
-        # Setup mock flow
+        """Test error handling for headless servers without browsers."""
+        # Setup mock flow that raises an exception for headless environments
         mock_flow = Mock()
-        mock_credentials = Mock()
-        mock_credentials.valid = True
-        mock_flow.run_local_server.return_value = mock_credentials
+        mock_flow.run_local_server.side_effect = Exception(
+            "No DISPLAY environment variable"
+        )
         mock_flow_class.from_client_secrets_file.return_value = mock_flow
 
-        # Call the function with device flow enabled
-        with patch("builtins.print"):
-            get_authenticated_service(
-                self.client_secret_file,
-                use_device_flow=True,
-                token_file=self.token_file,
-            )
+        # Call the function and expect it to exit
+        with patch("builtins.print") as mock_print:
+            with patch("sys.exit") as mock_exit:
+                get_authenticated_service(
+                    self.client_secret_file,
+                    token_file=self.token_file,
+                )
 
-        # Assert device flow was used
-        mock_flow_class.from_client_secrets_file.assert_called_once_with(
-            self.client_secret_file, SCOPES
-        )
-        mock_flow.run_local_server.assert_called_once_with(port=0, open_browser=False)
+                # Verify that helpful instructions were printed
+                mock_print.assert_called()
+                mock_exit.assert_called_once_with(1)
 
-        # Assert credentials were saved
-        mock_pickle_dump.assert_called_once()
-
-        # Verify mock was called
-        _ = mock_build
+        # Verify mocks were called
+        _ = mock_pickle_dump, mock_build
 
     @patch("youtube_uploader.main.build")
     @patch("youtube_uploader.main.pickle.load")
