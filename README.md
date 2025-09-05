@@ -38,16 +38,18 @@ pipx install git+https://github.com/asonnino/youtube-uploader.git
 3. Create a YouTube channel if you don't have one
 4. Try uploading again
 
+### 3. Remote Server Setup (Optional)
+
+For remote servers without browsers, authenticate locally first:
+
+1. Run the script locally (where you have a browser) to generate `token.pickle`
+2. Copy the token file to your remote server: `scp token.pickle your-server:/path/to/script/`
+3. Run the script normally on your remote server
+
 ## Usage
 
 ```bash
-# Basic upload
 youtube-uploader --video-file video.mp4 --metadata-file metadata.json --client-secret client_secret.json
-
-# For remote servers - first authenticate locally, then copy token file
-# 1. Run locally first: youtube-uploader --video-file video.mp4 --metadata-file metadata.json --client-secret client_secret.json
-# 2. Copy token.pickle to remote server: scp token.pickle your-server:/path/to/script/
-# 3. Run on remote server normally
 ```
 
 ### Metadata File Format
