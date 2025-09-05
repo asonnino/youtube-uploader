@@ -106,8 +106,16 @@ def main():
     """Handle command line arguments and orchestrate upload."""
     # Set up command line argument parser
     parser = argparse.ArgumentParser(description="Upload a video to YouTube via CLI.")
-    parser.add_argument("video_file", help="Path to the video file")
-    parser.add_argument("metadata_file", help="Path to JSON metadata file")
+    parser.add_argument(
+        "--video-file",
+        required=True,
+        help="Path to the video file",
+    )
+    parser.add_argument(
+        "--metadata-file",
+        required=True,
+        help="Path to JSON metadata file",
+    )
     parser.add_argument(
         "--client-secret",
         required=True,
