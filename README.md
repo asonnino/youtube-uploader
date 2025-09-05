@@ -9,8 +9,6 @@ Simple Python script to upload YouTube videos from the command line.
 
 ## Installation
 
-### Option 1: pipx (Recommended)
-
 Install using [pipx](https://pypa.github.io/pipx/) for isolated dependency management:
 
 ```bash
@@ -19,17 +17,6 @@ pipx install .
 
 # Or install directly from GitHub
 pipx install git+https://github.com/asonnino/youtube-uploader.git
-```
-
-### Option 2: Manual Setup
-
-```bash
-# Create virtual environment
-python -m venv .venv
-source .venv/bin/activate  # On Windows: .venv\Scripts\activate
-
-# Install required packages
-pip install -r requirements.txt
 ```
 
 ## Setup
@@ -53,24 +40,14 @@ pip install -r requirements.txt
 
 ## Usage
 
-### With pipx installation
-
 ```bash
 # Basic upload
 youtube-uploader --video-file video.mp4 --metadata-file metadata.json --client-secret client_secret.json
 
-# For headless servers (displays URL to visit manually)
-youtube-uploader --video-file video.mp4 --metadata-file metadata.json --client-secret client_secret.json --device-auth
-```
-
-### With manual setup
-
-```bash
-# Basic upload
-python youtube_uploader/main.py --video-file video.mp4 --metadata-file metadata.json --client-secret client_secret.json
-
-# For headless servers (displays URL to visit manually)
-python youtube_uploader/main.py --video-file video.mp4 --metadata-file metadata.json --client-secret client_secret.json --device-auth
+# For remote servers - first authenticate locally, then copy token file
+# 1. Run locally first: youtube-uploader --video-file video.mp4 --metadata-file metadata.json --client-secret client_secret.json
+# 2. Copy token.pickle to remote server: scp token.pickle your-server:/path/to/script/
+# 3. Run on remote server normally
 ```
 
 ### Metadata File Format
@@ -111,7 +88,7 @@ Privacy options: `"private"`, `"unlisted"`, `"public"`
 
 - Ensure OAuth credentials have YouTube upload permissions
 - Check that client secret file is valid and accessible
-- For headless servers, use `--device-auth` flag
+- For remote servers, authenticate locally first and copy the token.pickle file
 
 ## Testing
 

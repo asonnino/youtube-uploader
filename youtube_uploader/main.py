@@ -17,14 +17,22 @@ from googleapiclient.http import MediaFileUpload
 SCOPES = ["https://www.googleapis.com/auth/youtube.upload"]
 
 
-def get_authenticated_service(
-    client_secret_file, use_device_flow=False, token_file="token.pickle"
-):
+def _show_remote_server_instructions():
+    """Show instructions for authenticating on remote servers."""
+    print("\n❌ No browser available for authentication.")
+    print("\n📝 For remote servers:")
+    print("   1. Run this script locally first (where you have a browser)")
+    print("   2. Copy the generated token.pickle file to your remote server:")
+    print(f"      scp token.pickle your-server:{os.getcwd()}/")
+    print("   3. Run the script on your remote server")
+    sys.exit(1)
+
+
+def get_authenticated_service(client_secret_file, token_file="token.pickle"):
     """Authenticate and return YouTube service object.
 
     Args:
         client_secret_file: Path to OAuth2 client secret JSON file
-        use_device_flow: If True, use device flow for headless authentication
         token_file: Path to store/load cached credentials
 
     Returns:
@@ -45,26 +53,17 @@ def get_authenticated_service(
             credentials.refresh(Request())
         else:
             # No valid credentials, need to authenticate
-            if use_device_flow:
-                # Manual flow: no local server needed, works on remote machines
-                # User visits URL on any device and enters authorization code
-                flow = InstalledAppFlow.from_client_secrets_file(
-                    client_secret_file, SCOPES
-                )
-                auth_url, _ = flow.authorization_url(prompt="consent")
-                print("\n🔗 Please visit this URL on any device with internet access:")
-                print(f"   {auth_url}")
-                print("\n📋 After authorization, you'll get an authorization code.")
-                code = input("   Enter the authorization code here: ").strip()
-                flow.fetch_token(code=code)
-                credentials = flow.credentials
-            else:
+            try:
                 # Browser flow: opens local browser for authentication
-                # Standard flow for desktop environments
                 flow = InstalledAppFlow.from_client_secrets_file(
                     client_secret_file, SCOPES
                 )
                 credentials = flow.run_local_server(port=0)
+            except Exception as e:
+                if "DISPLAY" in str(e) or "browser" in str(e).lower():
+                    _show_remote_server_instructions()
+                else:
+                    raise
 
         # Save credentials for future runs
         with open(token_file, "wb") as f:
@@ -150,11 +149,6 @@ def main():
         required=True,
         help="Path to the OAuth2 client secret JSON file",
     )
-    parser.add_argument(
-        "--device-auth",
-        action="store_true",
-        help="Use OAuth device/console flow (for headless servers)",
-    )
     args = parser.parse_args()
 
     # Check if client secret file exists
@@ -162,9 +156,7 @@ def main():
         raise FileNotFoundError(f"Client secret file not found: {args.client_secret}")
 
     # Authenticate and get YouTube service
-    youtube = get_authenticated_service(
-        args.client_secret, use_device_flow=args.device_auth
-    )
+    youtube = get_authenticated_service(args.client_secret)
 
     # Upload the video with provided metadata
     upload_video(youtube, args.video_file, args.metadata_file)
