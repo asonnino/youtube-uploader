@@ -42,7 +42,7 @@ jobs:
 
       - name: Type check with mypy
         run: |
-          mypy upload.py
+          mypy youtube_uploader/
 
       - name: Check spelling with codespell
         run: |

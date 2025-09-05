@@ -199,37 +199,10 @@ class TestMain(TestCase):
                 main()
 
         # Assert functions were called
-        mock_get_auth.assert_called_once_with(
-            "client_secret.json", use_device_flow=False
-        )
+        mock_get_auth.assert_called_once_with("client_secret.json")
         mock_upload.assert_called_once_with(mock_youtube, "video.mp4", "metadata.json")
 
-    @patch("youtube_uploader.main.upload_video")
-    @patch("youtube_uploader.main.get_authenticated_service")
-    def test_main_with_device_auth(self, mock_get_auth, mock_upload):
-        """Test main function with --device-auth flag."""
-        mock_youtube = Mock()
-        mock_get_auth.return_value = mock_youtube
-
-        # Mock command line arguments with device auth
-        test_args = [
-            "youtube-uploader",
-            "--video-file",
-            "video.mp4",
-            "--metadata-file",
-            "metadata.json",
-            "--client-secret",
-            "client_secret.json",
-            "--device-auth",
-        ]
-        with patch("sys.argv", test_args):
-            with patch("youtube_uploader.main.os.path.exists", return_value=True):
-                main()
-
-        # Assert device flow was used
-        mock_get_auth.assert_called_once_with(
-            "client_secret.json", use_device_flow=True
-        )
+        # Removed test_main_with_device_auth as --device-auth flag was removed
 
         # Verify mocks were used
         _ = mock_upload
